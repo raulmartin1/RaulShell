@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import colorchooser, ttk
+from tkinter import colorchooser, ttk, simpledialog
 
 def change_bg_color(shell):
     color = colorchooser.askcolor()[1]
@@ -31,3 +31,10 @@ def change_emoji(shell):
         emoji_window.destroy()
     
     tk.Button(emoji_window, text="Aceptar", command=set_emoji).pack(pady=10)
+
+def change_response_color(shell):
+    color = colorchooser.askcolor()[1]
+    if color:
+        shell.response_color = color
+        # Actualiza el tag "response" en el área de salida para reflejar el nuevo color
+        shell.output.tag_config("response", foreground=color)
