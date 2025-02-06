@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import subprocess
-import sys
-import os
 from .if_settings import change_bg_color, change_text_color, change_emoji
+from commands.basic_commands import commands  # Importa los comandos desde la carpeta 'commands'
 
 class RaulShell:
     def __init__(self, root):
@@ -22,7 +21,6 @@ class RaulShell:
         root.config(menu=self.menu)
         
         self.settings_menu = tk.Menu(self.menu, tearoff=0)
-        # Usamos funciones externas mediante lambda para pasar 'self'
         self.settings_menu.add_command(label="Cambiar color de fondo", command=lambda: change_bg_color(self))
         self.settings_menu.add_command(label="Cambiar color de texto", command=lambda: change_text_color(self))
         self.settings_menu.add_command(label="Cambiar emoji de prefijo", command=lambda: change_emoji(self))
@@ -47,19 +45,28 @@ class RaulShell:
         self.output.yview(tk.END)
     
     def execute_command(self, event=None):
-        command = self.input_var.get().strip()
+        command_line = self.input_var.get().strip()
         self.input_var.set("")
         
-        if command:
-            self.print_output(f"{self.emoji_prefix} > {command}")
-            try:
-                result = subprocess.run(command, shell=True, capture_output=True, text=True, encoding='utf-8')
-                output = result.stdout.strip() if result.stdout else result.stderr.strip()
-            except Exception as e:
-                output = str(e)
+        if command_line:
+            # Separa el comando y sus argumentos
+            parts = command_line.split()
+            command = parts[0].lower()
+            args = parts[1:]
             
-            if output:
-                self.print_output(f"✅ {output}")
+            # Comprueba si el comando es interno
+            if command in commands:
+                commands[command](self, *args)
+            else:
+                self.print_output(f"{self.emoji_prefix} > {command_line}")
+                try:
+                    result = subprocess.run(command_line, shell=True, capture_output=True, text=True, encoding='utf-8')
+                    output = result.stdout.strip() if result.stdout else result.stderr.strip()
+                except Exception as e:
+                    output = str(e)
+                
+                if output:
+                    self.print_output(f"✅ {output}")
 
 def start_shell():
     root = tk.Tk()
