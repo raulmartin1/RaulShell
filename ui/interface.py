@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import subprocess
-from .if_settings import change_bg_color, change_text_color, change_emoji, change_response_color
-from commands.basic_commands import commands  # Diccionario de comandos internos
+
+from .if_settings import change_bg_color, change_text_color, change_emoji, change_response_color, open_advanced_config_panel
+from commands.basic_commands import commands  # Importar los comandos internos
 
 class RaulShell:
     def __init__(self, root):
@@ -29,6 +30,8 @@ class RaulShell:
         self.settings_menu.add_command(label="Cambiar color de texto", command=lambda: change_text_color(self))
         self.settings_menu.add_command(label="Cambiar emoji de prefijo", command=lambda: change_emoji(self))
         self.settings_menu.add_command(label="Cambiar color de respuesta", command=lambda: change_response_color(self))
+        self.settings_menu.add_command(label="Configuración Avanzada", command=lambda: open_advanced_config_panel(self))    # Configuración avanzada
+
         self.menu.add_cascade(label="Configuración", menu=self.settings_menu)
         
         # Área de salida
@@ -40,14 +43,34 @@ class RaulShell:
         self.output.tag_config("error", foreground="red")
         self.output.tag_config("command", foreground="#FFA500")  # Naranja para los comandos ingresados
         
-        # Área de entrada
+        # Mensaje de bienvenida en la salida
+        self.print_output("🔹 Bienvenido a RaulShell v1.0 🔹")
+
+        # Área de entrada con placeholder simulado
         self.input_var = tk.StringVar()
         self.input_entry = tk.Entry(root, textvariable=self.input_var, font=("Consolas", 12),
-                                    bg="#333333", fg="#FFFFFF", insertbackground="white")
+                                    bg="#333333", fg="#AAAAAA", insertbackground="white")  # Color gris para el placeholder
         self.input_entry.pack(fill=tk.X, padx=10, pady=5)
         self.input_entry.bind("<Return>", self.execute_command)
-        
-        self.print_output("🔹 Bienvenido a RaulShell v1.0 - Escribe comandos aquí 🔹")
+
+        # Placeholder en la entrada de comandos
+        self.input_var.set("Escribe comandos aquí...")
+
+        # Evento para limpiar el placeholder cuando el usuario hace clic
+        self.input_entry.bind("<FocusIn>", self.on_entry_click)
+        self.input_entry.bind("<FocusOut>", self.on_focus_out)
+    
+    def on_entry_click(self, event):
+        """Borra el placeholder cuando el usuario hace clic en la entrada."""
+        if self.input_var.get() == "Escribe comandos aquí...":
+            self.input_var.set("")
+            self.input_entry.config(fg="#FFFFFF")  # Cambia el color del texto a blanco normal
+
+    def on_focus_out(self, event):
+        """Restaura el placeholder si la entrada está vacía."""
+        if not self.input_var.get():
+            self.input_var.set("Escribe comandos aquí...")
+            self.input_entry.config(fg="#AAAAAA")  # Color gris para el placeholder
     
     def print_output(self, text, tag=None):
         """Imprime el texto en el área de salida aplicando, si se indica, el tag para estilo."""
@@ -70,12 +93,16 @@ class RaulShell:
             command = parts[0].lower()
             args = parts[1:]
             
+            # 🔹 Verificar si el comando es un alias definido por el usuario
+            if hasattr(self, "aliases") and command in self.aliases:
+                command = self.aliases[command]  # Sustituye el alias por el comando original
+            
             # Si es un comando interno, se ejecuta; de lo contrario, se envía al sistema.
             if command in commands:
                 commands[command](self, *args)
             else:
                 try:
-                    result = subprocess.run(command_line, shell=True, capture_output=True, text=True, encoding='utf-8')
+                    result = subprocess.run([command] + args, shell=True, capture_output=True, text=True, encoding='utf-8')
                     # Si el comando fue exitoso (código de retorno 0)
                     if result.returncode == 0:
                         output = result.stdout.strip()

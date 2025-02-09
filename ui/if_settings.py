@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import colorchooser, ttk, simpledialog
+from .advanced_conf import open_advanced_config_panel
 
 def change_bg_color(shell):
     color = colorchooser.askcolor()[1]
@@ -38,3 +39,4 @@ def change_response_color(shell):
         shell.response_color = color
         # Actualiza el tag "response" en el área de salida para reflejar el nuevo color
         shell.output.tag_config("response", foreground=color)
+
