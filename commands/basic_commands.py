@@ -1,6 +1,8 @@
 import os
 import tkinter as tk
 import datetime
+from commands.whoami import UserProfile 
+
 
 def clear_command(shell, *args):
     """Limpia la pantalla de salida."""
@@ -19,6 +21,8 @@ def help_command(shell, *args):
         "  echo     - Imprime un mensaje. Uso: echo <mensaje>\n"
         "  date     - Muestra la fecha y hora actual.\n"
         "  history  - Muestra el historial de comandos.\n"
+        "  whoami   - Muestra información del usuario.\n"
+        "  setpic   - Permite seleccionar una imagen de perfil.\n"
         "  (Si el comando no es interno, se ejecuta en el sistema.)"
     )
     shell.print_output(help_text)
@@ -67,7 +71,19 @@ def history_command(shell, *args):
     else:
         shell.print_output("Historial vacío.")
 
-# Diccionario que asocia nombres de comandos con sus funciones.
+def whoami_command(shell, *args):
+    """Muestra información del usuario y abre la imagen si está disponible."""
+    shell.print_output(shell.user_profile.get_profile_info())
+
+    # Si el usuario tiene una imagen de perfil, mostrarla en una ventana emergente
+    if shell.user_profile.profile_picture:
+        shell.user_profile.show_profile_picture()
+
+def setpic_command(shell, *args):
+    """Permite al usuario seleccionar una imagen como foto de perfil."""
+    shell.print_output(shell.user_profile.select_profile_picture())
+
+# Definir primero el diccionario commands
 commands = {
     "clear": clear_command,
     "help": help_command,
@@ -78,3 +94,8 @@ commands = {
     "date": date_command,
     "history": history_command,
 }
+
+commands.update({
+    "whoami": whoami_command,
+    "setpic": setpic_command  # Comando para elegir la imagen de perfil
+})

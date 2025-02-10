@@ -4,6 +4,7 @@ import subprocess
 
 from .if_settings import change_bg_color, change_text_color, change_emoji, change_response_color, open_advanced_config_panel
 from commands.basic_commands import commands  # Importar los comandos internos
+from commands.whoami import UserProfile
 
 class RaulShell:
     def __init__(self, root):
@@ -12,6 +13,10 @@ class RaulShell:
         self.root.geometry("800x500")
         self.root.configure(bg="#1e1e1e")
         
+         # Inicializar el perfil del usuario
+        self.user_profile = UserProfile()  # Ahora puedes acceder a self.user_profile en toda la shell
+        self.username = self.user_profile.username  # Guarda el nombre del usuario para usar en los comandos
+
         # Variables de configuración
         self.bg_color = "#1e1e1e"
         self.text_color = "#FFFFFF"    # Color para el texto general
@@ -74,6 +79,8 @@ class RaulShell:
     
     def print_output(self, text, tag=None):
         """Imprime el texto en el área de salida aplicando, si se indica, el tag para estilo."""
+        if text.startswith(f"{self.emoji_prefix} >"):  # Solo modificar los comandos escritos por el usuario
+            text = f"[{self.username}] {text}"  # Agregar el nombre delante del comando
         self.output.insert(tk.END, text + "\n", tag)
         self.output.yview(tk.END)
     
