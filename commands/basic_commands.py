@@ -2,7 +2,8 @@ import os
 import tkinter as tk
 import datetime
 from commands.whoami import UserProfile 
-
+from commands.sysinfo import sysinfo_command
+from commands.network_info import network_commands  # Asegúrate de que el archivo se llama 'network_info.py' y está en la carpeta 'commands'
 
 def clear_command(shell, *args):
     """Limpia la pantalla de salida."""
@@ -13,16 +14,20 @@ def help_command(shell, *args):
     """Muestra los comandos disponibles."""
     help_text = (
         "Comandos disponibles:\n"
-        "  clear    - Limpia la pantalla.\n"
-        "  help     - Muestra este mensaje de ayuda.\n"
-        "  version  - Muestra la versión de RaulShell.\n"
-        "  cd       - Cambia el directorio actual. Uso: cd <ruta>\n"
-        "  ls       - Lista archivos y carpetas del directorio actual.\n"
-        "  echo     - Imprime un mensaje. Uso: echo <mensaje>\n"
-        "  date     - Muestra la fecha y hora actual.\n"
-        "  history  - Muestra el historial de comandos.\n"
-        "  whoami   - Muestra información del usuario.\n"
-        "  setpic   - Permite seleccionar una imagen de perfil.\n"
+        "  clear     - Limpia la pantalla.\n"
+        "  help      - Muestra este mensaje de ayuda.\n"
+        "  version   - Muestra la versión de RaulShell.\n"
+        "  cd        - Cambia el directorio actual. Uso: cd <ruta>\n"
+        "  ls        - Lista archivos y carpetas del directorio actual.\n"
+        "  echo      - Imprime un mensaje. Uso: echo <mensaje>\n"
+        "  date      - Muestra la fecha y hora actual.\n"
+        "  history   - Muestra el historial de comandos.\n"
+        "  whoami    - Muestra información del usuario.\n"
+        "  setpic    - Permite seleccionar una imagen de perfil.\n"
+        "  sysinfo   - Muestra información general del sistema.\n"
+        "  checknet  - Verifica la conexión a Internet.\n"
+        "  netinfo   - Muestra información de la red.\n"
+        "  speedtest - Realiza una prueba de velocidad de Internet.\n"
         "  (Si el comando no es interno, se ejecuta en el sistema.)"
     )
     shell.print_output(help_text)
@@ -75,7 +80,6 @@ def whoami_command(shell, *args):
     """Muestra información del usuario y abre la imagen si está disponible."""
     shell.print_output(shell.user_profile.get_profile_info())
 
-    # Si el usuario tiene una imagen de perfil, mostrarla en una ventana emergente
     if shell.user_profile.profile_picture:
         shell.user_profile.show_profile_picture()
 
@@ -83,7 +87,7 @@ def setpic_command(shell, *args):
     """Permite al usuario seleccionar una imagen como foto de perfil."""
     shell.print_output(shell.user_profile.select_profile_picture())
 
-# Definir primero el diccionario commands
+# Definir el diccionario de comandos
 commands = {
     "clear": clear_command,
     "help": help_command,
@@ -95,7 +99,12 @@ commands = {
     "history": history_command,
 }
 
+# Actualizar con otros comandos
 commands.update({
     "whoami": whoami_command,
-    "setpic": setpic_command  # Comando para elegir la imagen de perfil
+    "setpic": setpic_command,  
+    "sysinfo": sysinfo_command,
 })
+
+# Agregar comandos de red
+commands.update(network_commands)
